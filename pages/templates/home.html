@@ -14,6 +14,8 @@
             {% csrf_token %}
             <label for="input1">Original Text:</label><br>
             <textarea type="text" id="input1" name="original">{{  input1 }}</textarea><br><br>
+            <label for="comment">Comment / Revision Request:</label><br>
+            <textarea type="text" id="comment" name="comment">{{  comment }}</textarea><br><br>
             <label for="input2">Revised Text:</label><br>
             <textarea type="text" id="input2" name="revised">{{  input2 }}</textarea><br><br>
             <input type="submit" id="submit" value="Submit">
