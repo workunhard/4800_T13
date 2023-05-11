@@ -10,4 +10,4 @@ def homePageView(request):
         input1 = request.POST['original']
         input2 = request.POST['revised']
         output = input1 + ' ' + input2
-    return render(request, 'home.html', {'output': output})
+    return render(request, 'home.html', {'output': output, 'input1': input1, 'input2': input2})
