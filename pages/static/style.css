@@ -63,12 +63,14 @@ textarea {
     resize: none;
     width: 95%;
     height: 100px;
-    border-radius: 1em;
+    border-radius: 0.5em;
     border-style: solid;
     border-color: gray;
     background-color: #efefef;
     justify-content: center;
     align-content: center;
+    box-shadow: 0px 10px 10px #4d4d4d;
+
 }
 
 #submit {
@@ -99,4 +101,6 @@ textarea {
     border-color: gray;
     border-radius: 0.5em;
     background-color: #efefef;
+        box-shadow: 0px 10px 10px #313131;
+
 }
