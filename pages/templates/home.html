@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Team 13</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+    <link rel="icon" href="{%  static 'favicon.ico' %}">
+</head>
+<body>
+    <div id="container">
+        <h1>COMP 4800 // Team 13</h1>
+        <form method="POST">
+            {% csrf_token %}
+            <label for="input1">Original Text:</label><br>
+            <textarea type="text" id="input1" name="original"></textarea><br><br>
+            <label for="input2">Revised Text:</label><br>
+            <textarea type="text" id="input2" name="revised"></textarea><br><br>
+            <input type="submit" id="submit" value="Submit">
+        </form>
+        <br><hr>
+            {% if output %}
+                <h2>Output: {{ output }}</h2>
+            {% endif %}
+    </div>
+</body>
+</html>
