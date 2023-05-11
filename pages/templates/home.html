@@ -7,7 +7,8 @@
     <link rel="icon" href="{%  static 'favicon.ico' %}">
 </head>
 <body>
-    <div id="container">
+    <div id="inputContainer">
+        <div class="container">
         <h1>COMP 4800 // Team 13</h1>
         <form method="POST">
             {% csrf_token %}
@@ -18,9 +19,15 @@
             <input type="submit" id="submit" value="Submit">
         </form>
         <br><hr>
+        </div>
+    </div>
+    <div id="outputContainer">
+        <div class="container">
+            <h2>Output:</h2>
             {% if output %}
-                <h2>Output: {{ output }}</h2>
+                <p id="output">{{ output }}</p>
             {% endif %}
+        </div>
     </div>
 </body>
 </html>
