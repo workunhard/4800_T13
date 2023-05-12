@@ -2,11 +2,15 @@ from django.shortcuts import render
 from django.http import Http404
 from django.urls import reverse
 from django.views.generic import TemplateView
-from transformers import AutoTokenizer, AutoModelForSequenceClassification
+from transformers import AutoTokenizer, AutoModelForSequenceClassification, BertTokenizer
 
-# Load your model and tokenizer once when the script starts
+# Load RoBERTa-IteraTer model and tokenizer once when the script starts
 tokenizer = AutoTokenizer.from_pretrained("wanyu/IteraTeR-ROBERTA-Intention-Classifier")
 model = AutoModelForSequenceClassification.from_pretrained("wanyu/IteraTeR-ROBERTA-Intention-Classifier")
+
+# Load bert_edit_intent_classification
+comment_tokenizer = BertTokenizer.from_pretrained('bert-base-uncased', do_lower_case=True)
+bert_model = AutoModelForSequenceClassification.from_pretrained("citruschao/bert_edit_intent_classification1")
 
 # Define your label mapping
 id2label = {0: "clarity", 1: "coherence", 2: "fluency", 3: "style", 4: "meaning changed"}
@@ -23,14 +27,16 @@ def homePageView(request):
     output = ''
     input1 = ''  # Default value
     input2 = ''  # Default value
+    input3 = ''  # Default value
     predictions_index = 0  # Default value
     predictions = ''
     if request.method == 'POST':
         input1 = request.POST.get('original', '')
         input2 = request.POST.get('revised', '')
+        input3 = request.POST.get('suggested_revision', '')
         if input1 == input2:
             return render(request, 'home.html',
-                          {'output': 'No revision detected', 'input1': input1, 'input2': input2})
+                          {'output': 'No revision detected', 'input1': input1, 'input2': input2, 'input3': input3})
 
         # Prepare your inputs for the model
         inputs = tokenizer(input1, input2, return_tensors='pt', truncation=True, padding=True)
