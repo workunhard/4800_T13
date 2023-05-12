@@ -24,12 +24,12 @@ explanation = {0: "Text is more formal, concise, readable and understandable",
 
 
 def homePageView(request):
-    output = ''
     input1 = ''  # Default value
     input2 = ''  # Default value
     input3 = ''  # Default value
     predictions_index = 0  # Default value
     predictions = ''
+    bert_predictions = ''  # For the bert model
     if request.method == 'POST':
         input1 = request.POST.get('original', '')
         input2 = request.POST.get('revised', '')
@@ -38,7 +38,7 @@ def homePageView(request):
             return render(request, 'home.html',
                           {'output': 'No revision detected', 'input1': input1, 'input2': input2, 'input3': input3})
 
-        # Prepare your inputs for the model
+        # Prepare your inputs for the IteraTeR-ROBERTA-Intention-Classifier model
         inputs = tokenizer(input1, input2, return_tensors='pt', truncation=True, padding=True)
 
         # Make the prediction
@@ -49,8 +49,19 @@ def homePageView(request):
         print(outputs.logits)
         print("Single prediction: " + str(predictions))
 
+        # Now, process input3 with the bert_edit_intent_classification1 model
+        bert_inputs = comment_tokenizer(input3, return_tensors='pt', truncation=True, padding=True)
+        bert_outputs = bert_model(**bert_inputs)
+        bert_predictions_index = bert_outputs.logits.argmax(-1).item()
+        bert_predictions = id2label[bert_predictions_index]
+
+        print(bert_outputs.logits)
+        print("Bert prediction: " + str(bert_predictions))
+
     return render(request, 'home.html',
                   {'output': 'Edit intention: ' + str(predictions),
                    'explanation': 'Explanation: ' + explanation[predictions_index],
+                   'bert_output': 'Bert prediction: ' + str(bert_predictions),
                    'input1': input1,
-                   'input2': input2})
+                   'input2': input2,
+                   'input3': input3})
