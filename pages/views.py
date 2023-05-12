@@ -3,6 +3,7 @@ from django.http import Http404
 from django.urls import reverse
 from django.views.generic import TemplateView
 from transformers import AutoTokenizer, AutoModelForSequenceClassification, BertTokenizer
+import torch.nn.functional as F
 
 # Load RoBERTa-IteraTer model and tokenizer once when the script starts
 tokenizer = AutoTokenizer.from_pretrained("wanyu/IteraTeR-ROBERTA-Intention-Classifier")
@@ -14,6 +15,7 @@ bert_model = AutoModelForSequenceClassification.from_pretrained("citruschao/bert
 
 # Define your label mapping
 id2label = {0: "clarity", 1: "coherence", 2: "fluency", 3: "style", 4: "meaning changed"}
+id3label = {0: "clarity", 1: "coherence", 2: "fluency", 3: "meaning-changed", 4: "other", 5: "style"}
 
 #Define explanations
 explanation = {0: "Text is more formal, concise, readable and understandable",
@@ -50,12 +52,17 @@ def homePageView(request):
         print("Single prediction: " + str(predictions))
 
         # Now, process input3 with the bert_edit_intent_classification1 model
-        bert_inputs = comment_tokenizer(input3, return_tensors='pt', truncation=True, padding=True)
+        bert_inputs = comment_tokenizer("[CLS]" + input3 + "[SEP]", return_tensors='pt', truncation=True, padding=True)
         bert_outputs = bert_model(**bert_inputs)
-        bert_predictions_index = bert_outputs.logits.argmax(-1).item()
-        bert_predictions = id2label[bert_predictions_index]
 
-        print(bert_outputs.logits)
+        # Apply softmax to logits
+        probabilities = F.softmax(bert_outputs.logits, dim=-1)
+
+        bert_predictions_index = probabilities.argmax(-1).item()
+        bert_predictions = id3label[bert_predictions_index]
+
+        # Print probabilities
+        print("Probabilities: ", probabilities)
         print("Bert prediction: " + str(bert_predictions))
 
     return render(request, 'home.html',
