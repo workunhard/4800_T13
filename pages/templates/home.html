@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Team 13</title>
+    <title>IteraTeR-ROBERTA-Intention-Classifier</title>
     {% load static %}
     <link rel="stylesheet" href="{% static 'style.css' %}">
     <link rel="icon" href="{%  static 'favicon.ico' %}">
@@ -9,13 +9,11 @@
 <body>
     <div id="inputContainer">
         <div class="container">
-        <h1>COMP 4800 // Team 13</h1>
+        <h1>Edit Intention Classifier<br>COMP 4800 -- Team 13</h1>
         <form method="POST">
             {% csrf_token %}
             <label for="input1">Original Text:</label><br>
             <textarea type="text" id="input1" name="original">{{  input1 }}</textarea><br><br>
-            <label for="comment">Comment / Revision Request:</label><br>
-            <textarea type="text" id="comment" name="comment">{{  comment }}</textarea><br><br>
             <label for="input2">Revised Text:</label><br>
             <textarea type="text" id="input2" name="revised">{{  input2 }}</textarea><br><br>
             <input type="submit" id="submit" value="Submit">
@@ -27,7 +25,7 @@
         <div class="container">
             <h2>Output:</h2>
             {% if output %}
-                <p id="output">{{ output }}</p>
+                <p id="output">{{ output }}<br><br>{{ explanation }}</p>
             {% endif %}
         </div>
     </div>
