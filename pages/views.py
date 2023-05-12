@@ -23,6 +23,7 @@ def homePageView(request):
     output = ''
     input1 = ''  # Default value
     input2 = ''  # Default value
+    predictions_index = 0  # Default value
     predictions = ''
     if request.method == 'POST':
         input1 = request.POST.get('original', '')
