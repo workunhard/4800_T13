@@ -16,7 +16,7 @@ bert_model = AutoModelForSequenceClassification.from_pretrained("citruschao/bert
 id2label = {0: "clarity", 1: "coherence", 2: "fluency", 3: "style", 4: "meaning changed"}
 
 #Define explanations
-explanation = {0: "Text is more formal, concise, readable and understandable",
+explanations = {0: "Text is more formal, concise, readable and understandable",
                1: "Fixed grammatical errors in the text",
                2: "Text is more cohesive, logically linked and consistent as a whole",
                3: "Better conveys the writer’s writing preferences, including emotions, tone, voice, etc.",
@@ -27,8 +27,9 @@ def homePageView(request):
     input1 = ''  # Default value
     input2 = ''  # Default value
     input3 = ''  # Default value
-    predictions_index = 0  # Default value
+    predictions_index = 0
     predictions = ''
+    explanation = ''
     bert_predictions = ''  # For the bert model
     if request.method == 'POST':
         input1 = request.POST.get('original', '')
@@ -45,6 +46,7 @@ def homePageView(request):
         outputs = model(**inputs)
         predictions_index = outputs.logits.argmax(-1).item()
         predictions = id2label[predictions_index]
+        explanation = explanations[predictions_index]
 
         print(outputs.logits)
         print("Single prediction: " + str(predictions))
@@ -60,7 +62,7 @@ def homePageView(request):
 
     return render(request, 'home.html',
                   {'output': 'Edit intention: ' + str(predictions),
-                   'explanation': 'Explanation: ' + explanation[predictions_index],
+                   'explanation': 'Explanation: ' + str(explanation),
                    'bert_output': 'Bert prediction: ' + str(bert_predictions),
                    'input1': input1,
                    'input2': input2,
