@@ -72,3 +72,11 @@ def homePageView(request):
                    'input1': input1,
                    'input2': input2,
                    'input3': input3})
+
+
+def aboutPageView(request):
+    return render(request, 'about.html')
+
+
+def contactPageView(request):
+    return render(request, 'about.html')
