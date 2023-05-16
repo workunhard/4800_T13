@@ -115,6 +115,10 @@
         <h1>Edit Intention Classifier<br>COMP 4800 -- Team 13</h1>
         <form method="POST">
             {% csrf_token %}
+            <label for="model_choice">Choose a model for sentence revision edit intent:</label><br>
+            {{ form.model_choice }}<br><br>
+            <label for="comment_model_choice">Choose a model for the suggestion comment:</label><br>
+            {{ form.comment_model_choice }}<br><br>
             <label for="input1">Original Text:</label><br>
             <textarea type="text" id="input1" name="original">{{  input1 }}</textarea><br><br>
             <label for="input2">Revised Text:</label><br>
