@@ -1,0 +1,59 @@
+@keyframes loader {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+#loader-container {
+  width: 120px;
+  height: 120px;
+  position: relative;
+  margin: auto;
+  margin-top: 20px;
+}
+
+#loader.hidden {
+  display: none;
+}
+
+#loader {
+  border: 8px solid #a6a6a6;
+  border-top: 8px solid rgba(96, 96, 96, 0.69);
+  border-radius: 50%;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  animation: loader 2s linear infinite;
+}
+
+.check-mark, .x-mark {
+  display: none;
+  font-size: 3em;
+  position: absolute;
+  top: 50%;
+  left: 55%;
+  transform: translate(-50%, -50%);
+}
+
+.outputs_match.hidden #loader {
+  border-top: 8px solid green;
+}
+
+.outputs_match .check-mark {
+  display: block;
+  color: green;
+}
+
+.not_outputs_match.hidden #loader {
+  border-top: 8px solid red;
+}
+
+.not_outputs_match .x-mark {
+  display: block;
+  color: red;
+}

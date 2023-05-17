@@ -4,7 +4,9 @@
     <title>IteraTeR-ROBERTA-Intention-Classifier</title>
     {% load static %}
     <link rel="stylesheet" href="{% static 'style.css' %}">
+    <link rel="stylesheet" href="{% static 'loader.css' %}">
     <link rel="icon" href="{%  static 'favicon.ico' %}">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     {% include 'sidenav.html' %}
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Open+Sans&display=swap');
@@ -134,9 +136,27 @@
         <div class="container">
             <h2>Output:</h2>
             {% if output %}
-                <p id="output">{{ output }}<br><br>{{ explanation }}<br><br>{{ bert_output }}</p>
+            <p id="output">{{ output }}<br><br>{{ explanation }}<br><br>{{ bert_output }}</p>
+            <div id="loader-container" class="{% if post_request %}{% if outputs_match %}outputs_match{% else %}not_outputs_match{% endif %}{% else %}hidden{% endif %}">
+                {% if post_success %}
+                {% if outputs_match %}
+                <span class="check-mark">✔</span>
+                {% else %}
+                <span class="x-mark">✖</span>
+                {% endif %}
+                {% else %}
+                <div id="loader" class="{% if post_request %}{% else %}hidden{% endif %}">></div>
+                {% endif %}
+            </div>
             {% endif %}
         </div>
     </div>
 </body>
 </html>
+
+<script>
+    document.getElementById('submit').addEventListener('click', function() {
+        document.getElementById('loader-container').style.display = 'block';
+    });
+</script>
+
