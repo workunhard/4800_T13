@@ -109,19 +109,15 @@ def homePageView(request):
             print(bert_outputs)
             print(comment_model_choice + " prediction: " + bert_predictions)
 
-    if comment_model_choice == 'bart_large_mnli':
-        if predictions == 'meaning-changed':
-            predictions == 'change'
-
     outputs_match = predictions == bert_predictions
 
     print(outputs_match)
 
     return render(request, 'home.html',
                   {'form': form,
-                   'output': 'Edit intention: ' + str(predictions),
+                   'output': 'Predicted revision edit intent: ' + str(predictions),
                    'explanation': 'Explanation: ' + explanation[predictions_index],
-                   'bert_output': 'Bert prediction: ' + str(bert_predictions),
+                   'bert_output': 'Predicted comment edit intent: ' + str(bert_predictions),
                    'input1': input1,
                    'input2': input2,
                    'input3': input3,
