@@ -15,8 +15,8 @@ from .forms import ModelChoiceForm
 # bert_model = AutoModelForSequenceClassification.from_pretrained("citruschao/bert_edit_intent_classification1")
 
 # Define your label mapping
-id2label = {0: "clarity", 1: "coherence", 2: "fluency", 3: "style", 4: "meaning changed"}
-id3label = {0: "clarity", 1: "coherence", 2: "fluency", 3: "meaning-changed", 4: "other", 5: "style"}
+# id2label = {0: "clarity", 1: "coherence", 2: "fluency", 3: "style", 4: "meaning changed"}
+# id3label = {0: "clarity", 1: "coherence", 2: "fluency", 3: "meaning-changed", 4: "other", 5: "style"}
 
 #Define explanations
 explanation = {0: "Text is more formal, concise, readable and understandable",
@@ -27,6 +27,11 @@ explanation = {0: "Text is more formal, concise, readable and understandable",
 
 
 def homePageView(request):
+    post_request = False
+    post_success = False
+    if request.method == 'POST':
+        post_request = True
+        post_success = True
     input1 = ''  # Default value
     input2 = ''  # Default value
     input3 = ''  # Default value
@@ -41,22 +46,22 @@ def homePageView(request):
         if model_choice == 'IteraTeR_ROBERTA':
             tokenizer = AutoTokenizer.from_pretrained("wanyu/IteraTeR-ROBERTA-Intention-Classifier")
             model = AutoModelForSequenceClassification.from_pretrained("wanyu/IteraTeR-ROBERTA-Intention-Classifier")
-            id2label = {0: "clarity", 1: "coherence", 2: "fluency", 3: "style", 4: "meaning changed"}
+            base_label = {0: "clarity", 1: "coherence", 2: "fluency", 3: "style", 4: "meaning-changed"}
 
         elif model_choice == 'BERT_edit':
             tokenizer = BertTokenizer.from_pretrained('bert-base-uncased', do_lower_case=True)
             model = AutoModelForSequenceClassification.from_pretrained("citruschao/bert_edit_intent_classification2")
-            id3label = {0: "clarity", 1: "coherence", 2: "fluency", 3: "meaning-changed", 4: "other", 5: "style"}
+            base_label = {0: "clarity", 1: "coherence", 2: "fluency", 3: "meaning-changed", 4: "other", 5: "style"}
 
         if comment_model_choice == 'IteraTeR_ROBERTA':
             comment_tokenizer = AutoTokenizer.from_pretrained("wanyu/IteraTeR-ROBERTA-Intention-Classifier")
             comment_model = AutoModelForSequenceClassification.from_pretrained("wanyu/IteraTeR-ROBERTA-Intention-Classifier")
-            id2label = {0: "clarity", 1: "coherence", 2: "fluency", 3: "style", 4: "meaning changed"}
+            comment_label = {0: "clarity", 1: "coherence", 2: "fluency", 3: "style", 4: "meaning-changed"}
 
         elif comment_model_choice == 'BERT_edit':
             comment_tokenizer = BertTokenizer.from_pretrained('bert-base-uncased', do_lower_case=True)
             comment_model = AutoModelForSequenceClassification.from_pretrained("citruschao/bert_edit_intent_classification2")
-            id3label = {0: "clarity", 1: "coherence", 2: "fluency", 3: "meaning-changed", 4: "other", 5: "style"}
+            comment_label = {0: "clarity", 1: "coherence", 2: "fluency", 3: "meaning-changed", 4: "other", 5: "style"}
 
         input1 = request.POST.get('original', '')
         input2 = request.POST.get('revised', '')
@@ -67,7 +72,7 @@ def homePageView(request):
         inputs = tokenizer(input1, input2, return_tensors='pt', truncation=True, padding=True)
         outputs = model(**inputs)
         predictions_index = outputs.logits.argmax(-1).item()
-        predictions = id2label[predictions_index]
+        predictions = base_label[predictions_index]
 
         print(outputs.logits)
         print("Single prediction: " + str(predictions))
@@ -76,10 +81,14 @@ def homePageView(request):
         bert_outputs = comment_model(**bert_inputs)
         probabilities = F.softmax(bert_outputs.logits, dim=-1)
         bert_predictions_index = probabilities.argmax(-1).item()
-        bert_predictions = id3label[bert_predictions_index]
+        bert_predictions = comment_label[bert_predictions_index]
 
         print("Probabilities: ", probabilities)
         print("Bert prediction: " + str(bert_predictions))
+
+    outputs_match = predictions == bert_predictions
+
+    print(outputs_match)
 
     return render(request, 'home.html',
                   {'form': form,
@@ -88,7 +97,10 @@ def homePageView(request):
                    'bert_output': 'Bert prediction: ' + str(bert_predictions),
                    'input1': input1,
                    'input2': input2,
-                   'input3': input3})
+                   'input3': input3,
+                   'outputs_match': outputs_match,
+                   'post_request': post_request,
+                   'post_success': post_success})
 
 
 def aboutPageView(request):
