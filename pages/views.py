@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.http import Http404
 from django.urls import reverse
 from django.views.generic import TemplateView
-from transformers import AutoTokenizer, AutoModelForSequenceClassification, BertTokenizer
+from transformers import AutoTokenizer, AutoModelForSequenceClassification, BertTokenizer, pipeline
 import torch.nn.functional as F
 from .forms import ModelChoiceForm
 
@@ -53,6 +53,10 @@ def homePageView(request):
             model = AutoModelForSequenceClassification.from_pretrained("citruschao/bert_edit_intent_classification2")
             base_label = {0: "clarity", 1: "coherence", 2: "fluency", 3: "meaning-changed", 4: "other", 5: "style"}
 
+        elif model_choice == 'bart_large_mnli':
+            classifier = pipeline("zero-shot-classification", model="facebook/bart-large-mnli")
+            base_label = ["clarity", "coherence", "fluency", "style", "meaning-changed"]
+
         if comment_model_choice == 'IteraTeR_ROBERTA':
             comment_tokenizer = AutoTokenizer.from_pretrained("wanyu/IteraTeR-ROBERTA-Intention-Classifier")
             comment_model = AutoModelForSequenceClassification.from_pretrained("wanyu/IteraTeR-ROBERTA-Intention-Classifier")
@@ -63,28 +67,51 @@ def homePageView(request):
             comment_model = AutoModelForSequenceClassification.from_pretrained("citruschao/bert_edit_intent_classification2")
             comment_label = {0: "clarity", 1: "coherence", 2: "fluency", 3: "meaning-changed", 4: "other", 5: "style"}
 
+        elif comment_model_choice == 'bart_large_mnli':
+            classifier = pipeline("zero-shot-classification", model="facebook/bart-large-mnli")
+            comment_label = ["clarity", "coherence", "fluency", "style", "change"]
+
         input1 = request.POST.get('original', '')
         input2 = request.POST.get('revised', '')
         input3 = request.POST.get('suggested_revision', '')
         if input1 == input2:
             return render(request, 'home.html', {'output': 'No revision detected', 'input1': input1, 'input2': input2, 'input3': input3, 'form': form})
 
-        inputs = tokenizer(input1, input2, return_tensors='pt', truncation=True, padding=True)
-        outputs = model(**inputs)
-        predictions_index = outputs.logits.argmax(-1).item()
-        predictions = base_label[predictions_index]
+        if model_choice == 'IteraTeR_ROBERTA' or model_choice == 'BERT_edit':
+            inputs = tokenizer(input1, input2, return_tensors='pt', truncation=True, padding=True)
+            outputs = model(**inputs)
+            predictions_index = outputs.logits.argmax(-1).item()
+            predictions = base_label[predictions_index]
 
-        print(outputs.logits)
-        print("Single prediction: " + str(predictions))
+            print(outputs.logits)
+            print(model_choice + " prediction: " + str(predictions))
 
-        bert_inputs = comment_tokenizer(input3, return_tensors='pt', truncation=True, padding=True)
-        bert_outputs = comment_model(**bert_inputs)
-        probabilities = F.softmax(bert_outputs.logits, dim=-1)
-        bert_predictions_index = probabilities.argmax(-1).item()
-        bert_predictions = comment_label[bert_predictions_index]
+        elif model_choice == 'bart_large_mnli':
+            outputs = classifier(input1 + " " + input2, base_label)
 
-        print("Probabilities: ", probabilities)
-        print("Bert prediction: " + str(bert_predictions))
+            print(outputs)
+
+        if comment_model_choice == 'IteraTeR_ROBERTA' or comment_model_choice == 'BERT_edit':
+            bert_inputs = comment_tokenizer(input3, return_tensors='pt', truncation=True, padding=True)
+            bert_outputs = comment_model(**bert_inputs)
+            probabilities = F.softmax(bert_outputs.logits, dim=-1)
+            bert_predictions_index = probabilities.argmax(-1).item()
+            bert_predictions = comment_label[bert_predictions_index]
+
+            print("Probabilities: ", probabilities)
+            print(comment_model_choice + " prediction: " + str(bert_predictions))
+
+        elif comment_model_choice == 'bart_large_mnli':
+            bert_outputs = classifier(input3, comment_label)
+            bert_predictions_index = bert_outputs['scores'].index(
+                max(bert_outputs['scores']))  # Getting index of max score
+            bert_predictions = bert_outputs['labels'][bert_predictions_index]
+            print(bert_outputs)
+            print(comment_model_choice + " prediction: " + bert_predictions)
+
+    if comment_model_choice == 'bart_large_mnli':
+        if predictions == 'meaning-changed':
+            predictions == 'change'
 
     outputs_match = predictions == bert_predictions
 
