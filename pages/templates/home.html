@@ -116,18 +116,20 @@
         <div class="container">
         <h1>Edit Intention Classifier<br>COMP 4800 -- Team 13</h1>
         <form method="POST">
-            {% csrf_token %}
-            <label for="model_choice">Choose a model for sentence revision edit intent:</label><br>
-            {{ form.model_choice }}<br><br>
-            <label for="comment_model_choice">Choose a model for the suggestion comment:</label><br>
-            {{ form.comment_model_choice }}<br><br>
-            <label for="input1">Original Text:</label><br>
-            <textarea type="text" id="input1" name="original">{{  input1 }}</textarea><br><br>
-            <label for="input2">Revised Text:</label><br>
-            <textarea type="text" id="input2" name="revised">{{  input2 }}</textarea><br><br>
-            <label for="input3">Suggested Revision:</label><br>
-            <textarea type="text" id="input3" name="suggested_revision">{{  input3 }}</textarea><br><br>
-            <input type="submit" id="submit" value="Submit">
+        {% csrf_token %}
+        <label for="model_choice">Choose a model for sentence revision edit intent:</label><br>
+        {{ form.model_choice }}
+        <button type="button" class="info-button" data-model-type="model">Info</button><br><br>
+        <label for="comment_model_choice">Choose a model for the suggestion comment:</label><br>
+        {{ form.comment_model_choice }}
+        <button type="button" class="info-button" data-model-type="comment_model">Info</button><br><br>
+        <label for="input1">Original Text:</label><br>
+        <textarea type="text" id="input1" name="original">{{  input1 }}</textarea><br><br>
+        <label for="input2">Revised Text:</label><br>
+        <textarea type="text" id="input2" name="revised">{{  input2 }}</textarea><br><br>
+        <label for="input3">Suggested Revision:</label><br>
+        <textarea type="text" id="input3" name="suggested_revision">{{  input3 }}</textarea><br><br>
+        <input type="submit" id="submit" value="Submit">
         </form>
         <br><hr>
         </div>
@@ -151,12 +153,6 @@
             {% endif %}
         </div>
     </div>
-    <div id="modelInfoContainer">
-        <h3>Model Description</h3>
-        <p>{{ model_description }}</p>
-        <h3>Comment Model Description</h3>
-        <p>{{ comment_model_description }}</p>
-    </div>
 </body>
 </html>
 
@@ -165,4 +161,40 @@
         document.getElementById('loader-container').style.display = 'block';
     });
 </script>
+
+<script>
+    $(document).ready(function() {
+        // Create a map from model names to descriptions
+        var modelDescriptions = {
+    "IteraTeR_ROBERTA": "IteraTeR-RoBERTa is a RoBERTa-based transformer model pre-trained on a large corpus of English text and fine-tuned for the intention classification task. It is designed to understand the text and predict its intention.",
+    "BERT_edit": "BERT_edit is based on the BERT model, which is pre-trained on a large corpus of English text. BERT_edit has been fine-tuned for the task of edit intention prediction, allowing it to understand and predict the intention behind revisions in the text.",
+    "bart_large_mnli": "bart_large_mnli is a model based on the BART architecture and is fine-tuned for the task of natural language inference (NLI). In this context, it is used to understand and classify the intention behind textual revisions."
+}
+        var commentModelDescriptions = modelDescriptions
+
+        // Add event listeners for both info buttons
+        $(".info-button").click(function(e) {
+            // Prevent the form from submitting when the button is clicked
+            e.preventDefault();
+
+            // Get the select element related to this button
+            var select = $(this).prevAll("select").first();
+
+            // Get the selected model
+            var model = select.val();
+
+            // Determine which set of descriptions to use based on the data attribute of the button
+            var descriptions = $(this).data('model-type') === 'model' ? modelDescriptions : commentModelDescriptions;
+
+            // Display the description for the selected model
+            alert(descriptions[model]);
+        });
+    });
+
+    document.getElementById('submit').addEventListener('click', function() {
+        document.getElementById('loader-container').style.display = 'block';
+    });
+</script>
+
+
 
