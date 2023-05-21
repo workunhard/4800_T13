@@ -98,3 +98,19 @@ textarea {
     padding-top: 1em;
     padding-bottom: 1em;
 }
+
+#revise_probabilities {
+    color: white;
+    font-size: 16pt;
+    margin: 0 0 0 0.5em;
+    padding-top: 1em;
+    padding-bottom: 1em;
+}
+
+#probabilities {
+    color: white;
+    font-size: 16pt;
+    margin: 0 0 0 0.5em;
+    padding-top: 1em;
+    padding-bottom: 1em;
+}

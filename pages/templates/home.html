@@ -139,6 +139,18 @@
             <h2>Output:</h2>
             {% if output %}
             <p id="output">{{ output }}<br><br>{{ explanation }}<br><br>{{ bert_output }}</p>
+                {% if logits %}
+                <p id="revise_probabilities">Sentence Revision Tensor: {{ logits }}</p>
+                {% endif %}
+{#                {% if model_choice %}#}
+{#                <p id="model_choice">{{ model_choice }}</p>#}
+{#                {% endif %}#}
+{#                {% if comment_model_choice %}#}
+{#                <p id="model_choice">{{ model_choice }}</p>#}
+{#                {% endif %}#}
+                {% if bert_logits %}
+                <p id="probabilities">Edit Comment Tensor: {{ bert_logits }}</p>
+                {% endif %}
             <div id="loader-container" class="{% if post_request %}{% if outputs_match %}outputs_match{% else %}not_outputs_match{% endif %}{% else %}hidden{% endif %}">
                 {% if post_success %}
                 {% if outputs_match %}

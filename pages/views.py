@@ -1,22 +1,8 @@
 from django.shortcuts import render
-from django.http import Http404
-from django.urls import reverse
-from django.views.generic import TemplateView
 from transformers import AutoTokenizer, AutoModelForSequenceClassification, BertTokenizer, pipeline
 import torch.nn.functional as F
 from .forms import ModelChoiceForm
 
-# # Load RoBERTa-IteraTer model and tokenizer once when the script starts
-# tokenizer = AutoTokenizer.from_pretrained("wanyu/IteraTeR-ROBERTA-Intention-Classifier")
-# model = AutoModelForSequenceClassification.from_pretrained("wanyu/IteraTeR-ROBERTA-Intention-Classifier")
-#
-# # Load bert_edit_intent_classification
-# comment_tokenizer = BertTokenizer.from_pretrained('bert-base-uncased', do_lower_case=True)
-# bert_model = AutoModelForSequenceClassification.from_pretrained("citruschao/bert_edit_intent_classification1")
-
-# Define your label mapping
-# id2label = {0: "clarity", 1: "coherence", 2: "fluency", 3: "style", 4: "meaning changed"}
-# id3label = {0: "clarity", 1: "coherence", 2: "fluency", 3: "meaning-changed", 4: "other", 5: "style"}
 
 #Define explanations
 explanation = {0: "Text is more formal, concise, readable and understandable",
@@ -45,6 +31,10 @@ def homePageView(request):
     predictions = ''
     bert_predictions = ''  # For the bert model
     outputs_match = False  # Default value
+    revise_probabilities = None
+    probabilities = None
+    logits = None
+    bert_logits = None
 
     form = ModelChoiceForm(request.POST or None)
 
@@ -97,8 +87,11 @@ def homePageView(request):
         if model_choice == 'IteraTeR_ROBERTA' or model_choice == 'BERT_edit':
             inputs = tokenizer(input1, input2, return_tensors='pt', truncation=True, padding=True)
             outputs = model(**inputs)
+            revise_probabilities = F.softmax(outputs.logits, dim=-1)
             predictions_index = outputs.logits.argmax(-1).item()
             predictions = base_label[predictions_index]
+
+            logits = str(revise_probabilities)
 
             print(outputs.logits)
             print(model_choice + " prediction: " + str(predictions))
@@ -108,6 +101,8 @@ def homePageView(request):
             predictions_index = outputs['scores'].index(max(outputs['scores']))  # Getting index of max score
             predictions = outputs['labels'][predictions_index]
 
+            logits = str(predictions)
+
             print(outputs)
 
         if comment_model_choice == 'IteraTeR_ROBERTA' or comment_model_choice == 'BERT_edit':
@@ -116,6 +111,8 @@ def homePageView(request):
             probabilities = F.softmax(bert_outputs.logits, dim=-1)
             bert_predictions_index = probabilities.argmax(-1).item()
             bert_predictions = comment_label[bert_predictions_index]
+
+            bert_logits = str(probabilities)
 
             print("Probabilities: ", probabilities)
             print(comment_model_choice + " prediction: " + str(bert_predictions))
@@ -127,6 +124,8 @@ def homePageView(request):
             bert_predictions = bert_outputs['labels'][bert_predictions_index]
             print(bert_outputs)
             print(comment_model_choice + " prediction: " + bert_predictions)
+
+            bert_logits = str(bert_predictions)
 
             print(outputs)
 
@@ -144,6 +143,12 @@ def homePageView(request):
         'outputs_match': outputs_match,
         'post_request': post_request,
         'post_success': post_success,
+        'revise_probabilities': revise_probabilities,
+        'probabilities': probabilities,
+        'model_choice': model_choice,
+        'comment_model_choice': comment_model_choice,
+        'logits' : logits,
+        'bert_logits': bert_logits
     }
 
     # Add model descriptions to the context if the models were selected
