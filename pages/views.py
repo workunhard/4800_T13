@@ -35,6 +35,8 @@ def homePageView(request):
     probabilities = None
     logits = None
     bert_logits = None
+    label1 = None
+    label2 = None
 
     form = ModelChoiceForm(request.POST or None)
 
@@ -47,32 +49,32 @@ def homePageView(request):
 
         if model_choice == 'IteraTeR_ROBERTA':
             tokenizer = AutoTokenizer.from_pretrained("wanyu/IteraTeR-ROBERTA-Intention-Classifier")
-            model = AutoModelForSequenceClassification.from_pretrained("wanyu/IteraTeR-ROBERTA-Intention-Classifier")
+            model = AutoModelForSequenceClassification.from_pretrained("wanyu/IteraTeR-ROBERTA-Intention-Classifier", low_cpu_mem_usage=True)
             base_label = {0: "clarity", 1: "coherence", 2: "fluency", 3: "style", 4: "meaning-changed"}
 
         elif model_choice == 'BERT_edit':
             tokenizer = BertTokenizer.from_pretrained('bert-base-uncased', do_lower_case=True)
-            model = AutoModelForSequenceClassification.from_pretrained("citruschao/bert_edit_intent_classification2")
+            model = AutoModelForSequenceClassification.from_pretrained("citruschao/bert_edit_intent_classification2", low_cpu_mem_usage=True)
             base_label = {0: "clarity", 1: "coherence", 2: "fluency", 3: "meaning-changed", 4: "other", 5: "style"}
 
         elif model_choice == 'bart_large_mnli':
-            classifier = pipeline("zero-shot-classification", model="facebook/bart-large-mnli")
+            classifier = pipeline("zero-shot-classification", model="facebook/bart-large-mnli", low_cpu_mem_usage=True)
             base_label = ["clarity", "coherence", "fluency", "style", "meaning-changed"]
 
         if comment_model_choice == 'IteraTeR_ROBERTA':
             comment_tokenizer = AutoTokenizer.from_pretrained("wanyu/IteraTeR-ROBERTA-Intention-Classifier")
             comment_model = AutoModelForSequenceClassification.from_pretrained(
-                "wanyu/IteraTeR-ROBERTA-Intention-Classifier")
+                "wanyu/IteraTeR-ROBERTA-Intention-Classifier", low_cpu_mem_usage=True)
             comment_label = {0: "clarity", 1: "coherence", 2: "fluency", 3: "style", 4: "meaning-changed"}
 
         elif comment_model_choice == 'BERT_edit':
             comment_tokenizer = BertTokenizer.from_pretrained('bert-base-uncased', do_lower_case=True)
             comment_model = AutoModelForSequenceClassification.from_pretrained(
-                "citruschao/bert_edit_intent_classification2")
+                "citruschao/bert_edit_intent_classification2", low_cpu_mem_usage=True)
             comment_label = {0: "clarity", 1: "coherence", 2: "fluency", 3: "meaning-changed", 4: "other", 5: "style"}
 
         elif comment_model_choice == 'bart_large_mnli':
-            classifier = pipeline("zero-shot-classification", model="facebook/bart-large-mnli")
+            classifier = pipeline("zero-shot-classification", model="facebook/bart-large-mnli", low_cpu_mem_usage=True)
             comment_label = ["clarity", "coherence", "fluency", "style", "change"]
 
         input1 = request.POST.get('original', '')
@@ -132,6 +134,9 @@ def homePageView(request):
         if predictions == bert_predictions:
             outputs_match = True
 
+        label1 = str(base_label)
+        label2 = str(comment_label)
+
     context = {
         'form': form,
         'output': 'Predicted revision edit intent: ' + str(predictions),
@@ -147,8 +152,10 @@ def homePageView(request):
         'probabilities': probabilities,
         'model_choice': model_choice,
         'comment_model_choice': comment_model_choice,
-        'logits' : logits,
-        'bert_logits': bert_logits
+        'logits': logits,
+        'bert_logits': bert_logits,
+        'label1': label1,
+        'label2': label2
     }
 
     # Add model descriptions to the context if the models were selected
