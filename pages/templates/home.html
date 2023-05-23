@@ -57,7 +57,7 @@
             margin: 0 0 0 0.5em;
         }
 
-        label {
+        select, label {
             margin-left: 1em;
         }
 
@@ -109,6 +109,11 @@
             padding-top: 1em;
             padding-bottom: 1em;
         }
+
+        .outputLabel {
+            font-weight: bold;
+            color: #b7b7b7;
+        }
     </style>
 </head>
 <body>
@@ -138,9 +143,12 @@
         <div class="container">
             <h2>Output:</h2>
             {% if output %}
-            <p id="output">{{ output }}<br><br>{{ explanation }}<br><br>{{ bert_output }}</p>
+                <p id="output"><span class="outputLabel">Predicted Revision Edit Intent:</span><br>{{ output }}
+                    <br><br><span class="outputLabel">Explanation:</span><br>{{ explanation }}
+                    <br><br><span class="outputLabel">Predicted Comment Edit Intent:</span><br>{{ bert_output }}
+                <br><hr></p>
                 {% if logits %}
-                <p id="revise_probabilities">Sentence Revision Tensor:<br>{{ logits }}<br>{{ label1 }}</p>
+                    <p id="revise_probabilities"><span class="outputLabel">Sentence Revision Tensor:</span><br>{{ logits }}<br>{{ label1 }}</p>
                 {% endif %}
 {#                {% if model_choice %}#}
 {#                <p id="model_choice">{{ model_choice }}</p>#}
@@ -149,7 +157,7 @@
 {#                <p id="model_choice">{{ model_choice }}</p>#}
 {#                {% endif %}#}
                 {% if bert_logits %}
-                <p id="probabilities">Edit Comment Tensor:<br>{{ bert_logits }}<br>{{ label2 }}</p>
+                    <p id="probabilities"><span class="outputLabel">Edit Comment Tensor:</span><br>{{ bert_logits }}<br>{{ label2 }}</p>
                 {% endif %}
             <div id="loader-container" class="{% if post_request %}{% if outputs_match %}outputs_match{% else %}not_outputs_match{% endif %}{% else %}hidden{% endif %}">
                 {% if post_success %}

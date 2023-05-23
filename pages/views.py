@@ -50,12 +50,12 @@ def homePageView(request):
         if model_choice == 'IteraTeR_ROBERTA':
             tokenizer = AutoTokenizer.from_pretrained("wanyu/IteraTeR-ROBERTA-Intention-Classifier")
             model = AutoModelForSequenceClassification.from_pretrained("wanyu/IteraTeR-ROBERTA-Intention-Classifier", low_cpu_mem_usage=True)
-            base_label = {0: "clarity", 1: "coherence", 2: "fluency", 3: "style", 4: "meaning-changed"}
+            base_label = {0: "Clarity", 1: "Coherence", 2: "Fluency", 3: "Style", 4: "Meaning changed"}
 
         elif model_choice == 'BERT_edit':
             tokenizer = BertTokenizer.from_pretrained('bert-base-uncased', do_lower_case=True)
             model = AutoModelForSequenceClassification.from_pretrained("citruschao/bert_edit_intent_classification2", low_cpu_mem_usage=True)
-            base_label = {0: "clarity", 1: "coherence", 2: "fluency", 3: "meaning-changed", 4: "other", 5: "style"}
+            base_label = {0: "Clarity", 1: "Coherence", 2: "Fluency", 3: "Meaning changed", 4: "Other", 5: "Style"}
 
         # elif model_choice == 'bart_large_mnli':
         #     classifier = pipeline("zero-shot-classification", model="facebook/bart-large-mnli", low_cpu_mem_usage=True)
@@ -65,13 +65,13 @@ def homePageView(request):
             comment_tokenizer = AutoTokenizer.from_pretrained("wanyu/IteraTeR-ROBERTA-Intention-Classifier")
             comment_model = AutoModelForSequenceClassification.from_pretrained(
                 "wanyu/IteraTeR-ROBERTA-Intention-Classifier", low_cpu_mem_usage=True)
-            comment_label = {0: "clarity", 1: "coherence", 2: "fluency", 3: "style", 4: "meaning-changed"}
+            comment_label = {0: "Clarity", 1: "Coherence", 2: "Fluency", 3: "Style", 4: "Meaning changed"}
 
         elif comment_model_choice == 'BERT_edit':
             comment_tokenizer = BertTokenizer.from_pretrained('bert-base-uncased', do_lower_case=True)
             comment_model = AutoModelForSequenceClassification.from_pretrained(
                 "citruschao/bert_edit_intent_classification2", low_cpu_mem_usage=True)
-            comment_label = {0: "clarity", 1: "coherence", 2: "fluency", 3: "meaning-changed", 4: "other", 5: "style"}
+            comment_label = {0: "Clarity", 1: "Coherence", 2: "Fluency", 3: "Meaning changed", 4: "Other", 5: "Style"}
 
         # elif comment_model_choice == 'bart_large_mnli':
         #     classifier = pipeline("zero-shot-classification", model="facebook/bart-large-mnli", low_cpu_mem_usage=True)
@@ -142,9 +142,9 @@ def homePageView(request):
 
     context = {
         'form': form,
-        'output': 'Predicted revision edit intent: ' + str(predictions),
-        'explanation': 'Explanation: ' + explanation[predictions_index],
-        'bert_output': 'Predicted comment edit intent: ' + str(bert_predictions),
+        'output': str(predictions),
+        'explanation': explanation[predictions_index],
+        'bert_output': str(bert_predictions),
         'input1': input1,
         'input2': input2,
         'input3': input3,
