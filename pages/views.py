@@ -57,9 +57,9 @@ def homePageView(request):
             model = AutoModelForSequenceClassification.from_pretrained("citruschao/bert_edit_intent_classification2", low_cpu_mem_usage=True)
             base_label = {0: "clarity", 1: "coherence", 2: "fluency", 3: "meaning-changed", 4: "other", 5: "style"}
 
-        elif model_choice == 'bart_large_mnli':
-            classifier = pipeline("zero-shot-classification", model="facebook/bart-large-mnli", low_cpu_mem_usage=True)
-            base_label = ["clarity", "coherence", "fluency", "style", "meaning-changed"]
+        # elif model_choice == 'bart_large_mnli':
+        #     classifier = pipeline("zero-shot-classification", model="facebook/bart-large-mnli", low_cpu_mem_usage=True)
+        #     base_label = ["clarity", "coherence", "fluency", "style", "meaning-changed"]
 
         if comment_model_choice == 'IteraTeR_ROBERTA':
             comment_tokenizer = AutoTokenizer.from_pretrained("wanyu/IteraTeR-ROBERTA-Intention-Classifier")
@@ -73,9 +73,9 @@ def homePageView(request):
                 "citruschao/bert_edit_intent_classification2", low_cpu_mem_usage=True)
             comment_label = {0: "clarity", 1: "coherence", 2: "fluency", 3: "meaning-changed", 4: "other", 5: "style"}
 
-        elif comment_model_choice == 'bart_large_mnli':
-            classifier = pipeline("zero-shot-classification", model="facebook/bart-large-mnli", low_cpu_mem_usage=True)
-            comment_label = ["clarity", "coherence", "fluency", "style", "change"]
+        # elif comment_model_choice == 'bart_large_mnli':
+        #     classifier = pipeline("zero-shot-classification", model="facebook/bart-large-mnli", low_cpu_mem_usage=True)
+        #     comment_label = ["clarity", "coherence", "fluency", "style", "change"]
 
         input1 = request.POST.get('original', '')
         input2 = request.POST.get('revised', '')
@@ -98,14 +98,14 @@ def homePageView(request):
             print(outputs.logits)
             print(model_choice + " prediction: " + str(predictions))
 
-        elif model_choice == 'bart_large_mnli':
-            outputs = classifier(input1 + " " + input2, base_label)
-            predictions_index = outputs['scores'].index(max(outputs['scores']))  # Getting index of max score
-            predictions = outputs['labels'][predictions_index]
-
-            logits = str(predictions)
-
-            print(outputs)
+        # elif model_choice == 'bart_large_mnli':
+        #     outputs = classifier(input1 + " " + input2, base_label)
+        #     predictions_index = outputs['scores'].index(max(outputs['scores']))  # Getting index of max score
+        #     predictions = outputs['labels'][predictions_index]
+        #
+        #     logits = str(predictions)
+        #
+        #     print(outputs)
 
         if comment_model_choice == 'IteraTeR_ROBERTA' or comment_model_choice == 'BERT_edit':
             bert_inputs = comment_tokenizer(input3, return_tensors='pt', truncation=True, padding=True)
@@ -119,17 +119,20 @@ def homePageView(request):
             print("Probabilities: ", probabilities)
             print(comment_model_choice + " prediction: " + str(bert_predictions))
 
-        elif comment_model_choice == 'bart_large_mnli':
-            bert_outputs = classifier(input3, comment_label)
-            bert_predictions_index = bert_outputs['scores'].index(
-                max(bert_outputs['scores']))  # Getting index of max score
-            bert_predictions = bert_outputs['labels'][bert_predictions_index]
-            print(bert_outputs)
-            print(comment_model_choice + " prediction: " + bert_predictions)
+        # elif comment_model_choice == 'bart_large_mnli':
+        #     bert_outputs = classifier(input3, comment_label)
+        #     bert_predictions_index = bert_outputs['scores'].index(
+        #         max(bert_outputs['scores']))  # Getting index of max score
+        #     bert_predictions = bert_outputs['labels'][bert_predictions_index]
+        #     print(bert_outputs)
+        #     print(comment_model_choice + " prediction: " + bert_predictions)
+        #
+        #     bert_logits = str(bert_predictions)
+        #
+        #     print(outputs)
 
-            bert_logits = str(bert_predictions)
-
-            print(outputs)
+        if bert_predictions == 'change':
+            bert_predictions = 'meaning-changed'
 
         if predictions == bert_predictions:
             outputs_match = True
